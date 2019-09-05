@@ -7,8 +7,15 @@ const cards = document.querySelector(".cards");
 axios
   .get("https://api.github.com/users/patjonstevenson")
   .then(response => {
-    console.log(response);
+    //console.log(response);
     cards.appendChild(userCard(response.data));
+    const followersLink = response.data.followers_url;
+    axios
+      .get(followersLink)
+      .then(response => {
+        response.data.forEach(user => cards.appendChild(userCard(user)));
+      })
+      .catch(err => console.log(err));
   })
   .catch(err => console.log(err));
 
