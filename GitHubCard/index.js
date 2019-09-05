@@ -4,35 +4,46 @@
 */
 
 const cards = document.querySelector(".cards");
-axios
-  .get("https://api.github.com/users/patjonstevenson")
-  .then(response => {
-    //console.log(response);
-    cards.appendChild(userCard(response.data));
-    const followersLink = response.data.followers_url;
-    axios
-      .get(followersLink)
-      .then(response => {
-        response.data.forEach(user => {
-          axios
-            .get(user.url)
-            .then(response => {
-              cards.appendChild(userCard(response.data));
-            })
-            .catch(err => console.log(err));
-        });
-      })
-      .catch(err => console.log(err));
-  })
-  .catch(err => console.log(err));
+const userLink = `https://api.github.com/users/${window.prompt(
+  "Enter GitHub username: "
+)}`;
+//makeUsers(userLink, cards);
 
+function makeUsers(userLink, entry) {
+  axios
+    .get(userLink)
+    .then(response => {
+      const followersLink = response.data.followers_url;
+      entry.appendChild(userCard(response.data));
+      makeFollowers(followersLink, entry);
+    })
+    .catch(err => console.log(err));
+}
+
+function makeFollowers(followersLink, entry) {
+  axios
+    .get(followersLink)
+    .then(response => {
+      // Iterate over followers
+      response.data.forEach(user => {
+        axios
+          .get(user.url)
+          .then(response => {
+            // Create card for follower
+            entry.appendChild(userCard(response.data));
+          })
+          .catch(err => console.log(err));
+      });
+    })
+    .catch(err => console.log(err));
+}
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
 
    Skip to Step 3.
 */
-
+makeUsers(userLink, cards);
 /* Step 4: Pass the data received from Github into your function, 
            create a new component and add it to the DOM as a child of .cards
 */
@@ -48,7 +59,15 @@ axios
 */
 
 const followersArray = [];
+/*axios.get("https://api.github.com/users/patjonstevenson").then(response => {
+  axios
+    .get(response.data.followers_url)
+    .then(response => {
 
+    })
+    .catch(err => console.log(err));
+});
+*/
 /* Step 3: Create a function that accepts a single object as its only argument,
           Using DOM methods and properties, create a component that will return the following DOM element:
 
