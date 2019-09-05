@@ -3,6 +3,15 @@
            https://api.github.com/users/<your name>
 */
 
+const cards = document.querySelector(".cards");
+axios
+  .get("https://api.github.com/users/patjonstevenson")
+  .then(response => {
+    console.log(response);
+    cards.appendChild(userCard(response.data));
+  })
+  .catch(err => console.log(err));
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
@@ -45,6 +54,52 @@ const followersArray = [];
 </div>
 
 */
+
+function userCard(obj) {
+  // Create card elements
+  const card = document.createElement("div");
+  const image = document.createElement("img");
+  const info = document.createElement("div");
+  const name = document.createElement("h3");
+  const username = document.createElement("p");
+  const location = document.createElement("p");
+  const profile = document.createElement("p");
+  const link = document.createElement("a");
+  const followers = document.createElement("p");
+  const following = document.createElement("p");
+  const bio = document.createElement("p");
+
+  // Add classes
+  card.classList.add("card");
+  info.classList.add("card-info");
+  name.classList.add("name");
+  username.classList.add("username");
+
+  // Add content
+  image.src = obj.avatar_url;
+  name.textContent = obj.name;
+  username.textContent = obj.login;
+  location.textContent = `Location: ${obj.location}`;
+  profile.textContent = `Profile: `;
+  link.textContent = obj.html_url;
+  followers.textContent = `Followers: ${obj.followers}`;
+  following.textContent = `Following: ${obj.following}`;
+  bio.textContent = `Bio: ${obj.bio}`;
+
+  // Structure nesting of children
+  card.appendChild(image);
+  info.appendChild(name);
+  info.appendChild(username);
+  info.appendChild(location);
+  info.appendChild(profile);
+  profile.appendChild(link);
+  info.appendChild(followers);
+  info.appendChild(following);
+  info.appendChild(bio);
+  card.appendChild(info);
+
+  return card;
+}
 
 /* List of LS Instructors Github username's: 
   tetondan
