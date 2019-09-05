@@ -13,7 +13,14 @@ axios
     axios
       .get(followersLink)
       .then(response => {
-        response.data.forEach(user => cards.appendChild(userCard(user)));
+        response.data.forEach(user => {
+          axios
+            .get(user.url)
+            .then(response => {
+              cards.appendChild(userCard(response.data));
+            })
+            .catch(err => console.log(err));
+        });
       })
       .catch(err => console.log(err));
   })
