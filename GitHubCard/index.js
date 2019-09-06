@@ -7,12 +7,15 @@ const cards = document.querySelector(".cards");
 const userLink = `https://api.github.com/users/${window.prompt(
   "Enter GitHub username: "
 )}`;
-//addCard(makeUserCard(userLink), cards);
-//addFollowers(userLink, cards);
-userPage(userLink, cards);
 
+addCard(makeUserCard(userLink), cards);
+addFollowers(userLink, cards);
+//userPage(userLink, cards);
+
+// Not working. Doesn't remove child nodes
 function userPage(userLink, entry) {
-  entry.childNodes.forEach(node => cards.removeChild(node));
+  entry.childNodes.forEach(node => entry.removeChild(node));
+  console.log(entry.childNodes);
   addCard(makeUserCard(userLink), entry);
   addFollowers(userLink, entry);
 }
@@ -56,6 +59,19 @@ function addFollowers(userLink, entry) {
         .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
+}
+
+// CURRENTLY NOT WORKING BECAUSE unwrapPromise STILL NOT WORKING
+function followers(userLink, entry) {
+  unwrapPromise(
+    followersUrlList(unwrapPromise(followersUrl(userLink)))
+  ).forEach(user => addCard(makeUserCard(user), entry));
+}
+
+// TRY TO MAKE THIS POINT FREE, OR AT LEAST MAYBE PASS A CALLBACK?
+// I DON'T KNOW ABOUT THAT ^, BUT IT'S NOT WORKING RIGHT NOW
+function unwrapPromise(prom) {
+  return prom.then(val => val).catch(err => err);
 }
 
 /* Step 2: Inspect and study the data coming back, this is YOUR 
@@ -132,8 +148,8 @@ function userCard(obj) {
   following.textContent = `Following: ${obj.following}`;
   bio.textContent = `Bio: ${obj.bio}`;
 
-  // Add event listener to card
-  card.addEventListener("click", event => userPage(obj.url, cards));
+  // Add event listener to card (not working, b/c userPage not working)
+  //card.addEventListener("click", event => userPage(obj.url, cards));
 
   // Structure nesting of children
   card.appendChild(image);
