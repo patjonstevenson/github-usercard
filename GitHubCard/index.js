@@ -3,13 +3,84 @@
            https://api.github.com/users/<your name>
 */
 
+const cards = document.querySelector(".cards");
+const userLink = `https://api.github.com/users/${window.prompt(
+  "Enter GitHub username: "
+)}`;
+
+addCard(makeUserCard(userLink), cards);
+addFollowers(userLink, cards);
+//userPage(userLink, cards);
+
+// Not working. Doesn't remove child nodes
+function userPage(userLink, entry) {
+  entry.childNodes.forEach(node => entry.removeChild(node));
+  console.log(entry.childNodes);
+  addCard(makeUserCard(userLink), entry);
+  addFollowers(userLink, entry);
+}
+
+function makeUserCard(link) {
+  return axios
+    .get(link)
+    .then(response => {
+      return userCard(response.data);
+    })
+    .catch(err => console.log(err));
+}
+
+function addCard(userPromise, entry) {
+  userPromise
+    .then(user => entry.appendChild(user))
+    .catch(err => console.log(err));
+}
+
+function followersUrl(link) {
+  return axios
+    .get(link)
+    .then(response => response.data.followers_url)
+    .catch(err => console.log(err));
+}
+
+function followersUrlList(link) {
+  return axios
+    .get(link)
+    .then(response => response.data.map(user => user.url))
+    .catch(err => console.log(err));
+}
+
+function addFollowers(userLink, entry) {
+  followersUrl(userLink)
+    .then(link => {
+      followersUrlList(link)
+        .then(list => {
+          list.forEach(user => addCard(makeUserCard(user), entry));
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+}
+
+// CURRENTLY NOT WORKING BECAUSE unwrapPromise STILL NOT WORKING
+function followers(userLink, entry) {
+  unwrapPromise(
+    followersUrlList(unwrapPromise(followersUrl(userLink)))
+  ).forEach(user => addCard(makeUserCard(user), entry));
+}
+
+// TRY TO MAKE THIS POINT FREE, OR AT LEAST MAYBE PASS A CALLBACK?
+// I DON'T KNOW ABOUT THAT ^, BUT IT'S NOT WORKING RIGHT NOW
+function unwrapPromise(prom) {
+  return prom.then(val => val).catch(err => err);
+}
+
 /* Step 2: Inspect and study the data coming back, this is YOUR 
    github info! You will need to understand the structure of this 
    data in order to use it to build your component function 
 
    Skip to Step 3.
 */
-
+//makeUsers(userLink, cards);
 /* Step 4: Pass the data received from Github into your function, 
            create a new component and add it to the DOM as a child of .cards
 */
@@ -45,6 +116,55 @@ const followersArray = [];
 </div>
 
 */
+
+function userCard(obj) {
+  // Create card elements
+  const card = document.createElement("div");
+  const image = document.createElement("img");
+  const info = document.createElement("div");
+  const name = document.createElement("h3");
+  const username = document.createElement("p");
+  const location = document.createElement("p");
+  const profile = document.createElement("p");
+  const link = document.createElement("a");
+  const followers = document.createElement("p");
+  const following = document.createElement("p");
+  const bio = document.createElement("p");
+
+  // Add classes
+  card.classList.add("card");
+  info.classList.add("card-info");
+  name.classList.add("name");
+  username.classList.add("username");
+
+  // Add content
+  image.src = obj.avatar_url;
+  name.textContent = obj.name;
+  username.textContent = obj.login;
+  location.textContent = `Location: ${obj.location}`;
+  profile.textContent = `Profile: `;
+  link.textContent = obj.html_url;
+  followers.textContent = `Followers: ${obj.followers}`;
+  following.textContent = `Following: ${obj.following}`;
+  bio.textContent = `Bio: ${obj.bio}`;
+
+  // Add event listener to card (not working, b/c userPage not working)
+  //card.addEventListener("click", event => userPage(obj.url, cards));
+
+  // Structure nesting of children
+  card.appendChild(image);
+  info.appendChild(name);
+  info.appendChild(username);
+  info.appendChild(location);
+  info.appendChild(profile);
+  profile.appendChild(link);
+  info.appendChild(followers);
+  info.appendChild(following);
+  info.appendChild(bio);
+  card.appendChild(info);
+
+  return card;
+}
 
 /* List of LS Instructors Github username's: 
   tetondan
